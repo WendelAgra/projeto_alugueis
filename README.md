@@ -1,7 +1,5 @@
 # Sistema de Gestão de Aluguéis
 
-![Banner do Projeto](image_2f498c.jpg)
-
 ## 📖 Sobre o Projeto
 
 Este projeto é uma aplicação web **full-stack** completa para a gestão de aluguéis de imóveis, desenvolvida com Python e Flask. A plataforma permite que múltiplos utilizadores (locadores) se registem e administrem as suas propriedades, inquilinos e finanças de forma isolada e segura.
