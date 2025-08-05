@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gerenciar Inquilinos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="logo">Gestão de Aluguéis</a>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="{{ url_for('listar_casas') }}" class="{% if 'casas' in request.endpoint %}active{% endif %}"><i class="fas fa-building"></i> Gerenciar Casas</a></li>
+                <li><a href="{{ url_for('listar_inquilinos') }}" class="{% if 'inquilino' in request.endpoint %}active{% endif %}"><i class="fas fa-users"></i> Gerenciar Inquilinos</a></li>
+                <li><a href="{{ url_for('listar_contratos') }}" class="{% if 'contrato' in request.endpoint %}active{% endif %}"><i class="fas fa-file-contract"></i> Gerir Contratos</a></li>
+                <li><a href="{{ url_for('pagina_alugueis') }}" class="{% if request.endpoint == 'pagina_alugueis' %}active{% endif %}"><i class="fas fa-plus-circle"></i> Registrar Aluguel</a></li>
+                <li><a href="{{ url_for('listar_pendentes') }}" class="{% if request.endpoint == 'listar_pendentes' %}active{% endif %}"><i class="fas fa-chart-line"></i> Relatório de Pendências</a></li>
+            </ul>
+            <div class="user-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('perfil') }}" class="welcome-message"><i class="fas fa-user-circle"></i> Olá, {{ current_user.username }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-messages">{% for c, m in messages %}<div class="alert alert-{{c}}">{{m}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+        
+        <div class="content-section">
+            <div class="table-header">
+                <h1><i class="fas fa-users"></i> Inquilinos Cadastrados</h1>
+                <a href="{{ url_for('pagina_cadastro_inquilino') }}" class="btn"><i class="fas fa-user-plus"></i> Adicionar Novo Inquilino</a>
+            </div>
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Telefone</th>
+                        <th>Ações</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for inquilino in inquilinos %}
+                    <tr>
+                        <td>{{ inquilino['nome'] }}</td>
+                        <td>{{ inquilino['telefone'] }}</td>
+                        <td class="actions-cell">
+                            <a href="{{ url_for('pagina_editar_inquilino', inquilino_id=inquilino['id']) }}" class="btn btn-secondary"><i class="fas fa-user-edit"></i> Editar</a>
+                            <form action="{{ url_for('excluir_inquilino', inquilino_id=inquilino['id']) }}" method="post" onsubmit="return confirm('Tem certeza?');"><button type="submit" class="btn btn-danger"><i class="fas fa-user-times"></i> Excluir</button></form>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="3">Nenhum inquilino cadastrado.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% if total_paginas > 1 %}
+            <div class="pagination">
+                <a href="{{ url_for('listar_inquilinos', page=pagina_atual-1) }}" class="btn btn-secondary {{ 'disabled' if pagina_atual == 1 else '' }}">Anterior</a>
+                <span>Página {{ pagina_atual }} de {{ total_paginas }}</span>
+                <a href="{{ url_for('listar_inquilinos', page=pagina_atual+1) }}" class="btn btn-secondary {{ 'disabled' if pagina_atual == total_paginas else '' }}">Próxima</a>
+            </div>
+            {% endif %}
+        </div>
+    </main>
+</body>
+</html>

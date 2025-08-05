@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Gestão de Aluguéis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="logo">Gestão de Aluguéis</a>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="active"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="{{ url_for('listar_casas') }}"><i class="fas fa-building"></i> Gerenciar Casas</a></li>
+                <li><a href="{{ url_for('listar_inquilinos') }}"><i class="fas fa-users"></i> Gerenciar Inquilinos</a></li>
+                <li><a href="{{ url_for('listar_contratos') }}"><i class="fas fa-file-contract"></i> Gerir Contratos</a></li>
+                <li><a href="{{ url_for('pagina_alugueis') }}"><i class="fas fa-plus-circle"></i> Registrar Aluguel</a></li>
+                <li><a href="{{ url_for('listar_pendentes') }}"><i class="fas fa-chart-line"></i> Relatório de Pendências</a></li>
+            </ul>
+            <div class="user-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('perfil') }}" class="welcome-message"><i class="fas fa-user-circle"></i> Olá, {{ current_user.username }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container">
+        <div class="metrics-container">
+            <div class="metric-card">
+                <h3>Total a Receber (Pendente)</h3>
+                <p class="valor-pendente">R$ {{ "%.2f"|format(total_pendente) }}</p>
+            </div>
+            <div class="metric-card">
+                <h3>Recebido em {{ nome_mes_atual }}</h3>
+                <p class="valor-recebido">R$ {{ "%.2f"|format(total_recebido_mes) }}</p>
+            </div>
+        </div>
+        <div class="search-container content-section">
+            <form method="get" action="{{ url_for('index') }}"><div class="search-form-group"><input type="text" name="busca" placeholder="Buscar por apelido, endereço ou inquilino..." value="{{ termo_busca or '' }}"><button type="submit" class="btn"><i class="fas fa-search"></i> Buscar</button></div></form>
+        </div>
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-messages">{% for c, m in messages %}<div class="alert alert-{{c}}">{{m}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+        <div class="rental-lists">
+            <section class="content-section">
+                <h2><i class="fas fa-exclamation-triangle"></i> Aluguéis Pendentes</h2>
+                <div class="rental-list">
+                    {% for aluguel in pendentes %}
+                    <div class="card {% if aluguel.vencido %}card-vencido{% endif %}">
+                        {% if aluguel.vencido %}<p class="aviso-vencido">ATENÇÃO: ALUGUEL VENCIDO</p>{% endif %}
+                        <p><i class="fas fa-home"></i><span class="label">Casa:</span> <span class="value">{{ aluguel.apelido_casa }}</span></p>
+                        <p><i class="fas fa-user"></i><span class="label">Inquilino:</span> <span class="value">{{ aluguel.nome_inquilino or 'Inquilino Removido' }}</span></p>
+                        <p><i class="fas fa-calendar-alt"></i><span class="label">Vencimento:</span> <span class="value">{{ aluguel.vencimento_br }}</span></p>
+                        <p><i class="fas fa-dollar-sign"></i><span class="label">Valor:</span> <span class="value">R$ {{ "%.2f"|format(aluguel.valor_aluguel) }}</span></p>
+                        {% if aluguel.nome_documento %}<div class="document-link"><a href="{{ url_for('download_file', filename=aluguel.caminho_documento) }}" target="_blank"><i class="fas fa-file-download"></i> Baixar {{ aluguel.nome_documento }}</a></div>{% endif %}
+                        <div class="card-actions">
+                            <form action="{{ url_for('dar_baixa', aluguel_id=aluguel.id) }}" method="post" style="display: inline;"><button type="submit" class="btn btn-success"><i class="fas fa-check"></i> Marcar como Pago</button></form>
+                            <form action="{{ url_for('excluir_aluguel', aluguel_id=aluguel.id) }}" method="post" style="display: inline;" onsubmit="return confirm('Tem certeza?');"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button></form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>Nenhum aluguel pendente encontrado.</p>
+                    {% endfor %}
+                </div>
+            </section>
+            <section class="content-section">
+                <h2><i class="fas fa-check-circle"></i> Aluguéis Pagos</h2>
+                <div class="rental-list">
+                    {% for aluguel in pagos %}
+                    <div class="card">
+                        <p><i class="fas fa-home"></i><span class="label">Casa:</span> <span class="value">{{ aluguel.apelido_casa }}</span></p>
+                        <p><i class="fas fa-user"></i><span class="label">Inquilino:</span> <span class="value">{{ aluguel.nome_inquilino or 'Inquilino Removido' }}</span></p>
+                        <p><i class="fas fa-calendar-alt"></i><span class="label">Vencimento:</span> <span class="value">{{ aluguel.vencimento_br }}</span></p>
+                        <p><i class="fas fa-dollar-sign"></i><span class="label">Valor:</span> <span class="value">R$ {{ "%.2f"|format(aluguel.valor_aluguel) }}</span></p>
+                        {% if aluguel.nome_documento %}<div class="document-link"><a href="{{ url_for('download_file', filename=aluguel.caminho_documento) }}" target="_blank"><i class="fas fa-file-download"></i> Baixar {{ aluguel.nome_documento }}</a></div>{% endif %}
+                        <div class="card-actions">
+                            <form action="{{ url_for('excluir_aluguel', aluguel_id=aluguel.id) }}" method="post" onsubmit="return confirm('Tem certeza?');"><button type="submit" class="btn btn-danger"><i class="fas fa-trash"></i> Excluir</button></form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p>Nenhum aluguel pago encontrado.</p>
+                    {% endfor %}
+                </div>
+            </section>
+        </div>
+    </main>
+</body>
+</html>

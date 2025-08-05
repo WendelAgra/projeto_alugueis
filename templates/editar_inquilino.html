@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar Inquilino</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="logo">Gestão de Aluguéis</a>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="{{ url_for('listar_casas') }}" class="{% if 'casas' in request.endpoint %}active{% endif %}"><i class="fas fa-building"></i> Gerenciar Casas</a></li>
+                <li><a href="{{ url_for('listar_inquilinos') }}" class="{% if 'inquilino' in request.endpoint %}active{% endif %}"><i class="fas fa-users"></i> Gerenciar Inquilinos</a></li>
+                <li><a href="{{ url_for('listar_contratos') }}" class="{% if 'contrato' in request.endpoint %}active{% endif %}"><i class="fas fa-file-contract"></i> Gerir Contratos</a></li>
+                <li><a href="{{ url_for('pagina_alugueis') }}" class="{% if request.endpoint == 'pagina_alugueis' %}active{% endif %}"><i class="fas fa-plus-circle"></i> Registrar Aluguel</a></li>
+                <li><a href="{{ url_for('listar_pendentes') }}" class="{% if request.endpoint == 'listar_pendentes' %}active{% endif %}"><i class="fas fa-chart-line"></i> Relatório de Pendências</a></li>
+            </ul>
+            <div class="user-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('perfil') }}" class="welcome-message"><i class="fas fa-user-circle"></i> Olá, {{ current_user.username }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container">
+        <div class="form-container">
+            <h1><i class="fas fa-user-edit"></i> Editar Inquilino</h1>
+            <form method="post">
+                <div class="form-group">
+                    <label for="nome">Nome Completo</label>
+                    <input type="text" id="nome" name="nome" value="{{ inquilino['nome'] }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="telefone">Telefone</label>
+                    <input type="text" id="telefone" name="telefone" value="{{ inquilino['telefone'] }}" required>
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Alterações</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>

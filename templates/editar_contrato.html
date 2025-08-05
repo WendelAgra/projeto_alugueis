@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Editar Contrato</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+</head>
+<body>
+    <header>
+        <nav>
+            <a href="{{ url_for('index') }}" class="logo">Gestão de Aluguéis</a>
+            <ul>
+                <li><a href="{{ url_for('index') }}" class="{% if request.endpoint == 'index' %}active{% endif %}"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="{{ url_for('listar_casas') }}" class="{% if 'casas' in request.endpoint %}active{% endif %}"><i class="fas fa-building"></i> Gerenciar Casas</a></li>
+                <li><a href="{{ url_for('listar_inquilinos') }}" class="{% if 'inquilino' in request.endpoint %}active{% endif %}"><i class="fas fa-users"></i> Gerenciar Inquilinos</a></li>
+                <li><a href="{{ url_for('listar_contratos') }}" class="{% if 'contrato' in request.endpoint %}active{% endif %}"><i class="fas fa-file-contract"></i> Gerir Contratos</a></li>
+                <li><a href="{{ url_for('pagina_alugueis') }}" class="{% if request.endpoint == 'pagina_alugueis' %}active{% endif %}"><i class="fas fa-plus-circle"></i> Registrar Aluguel</a></li>
+                <li><a href="{{ url_for('listar_pendentes') }}" class="{% if request.endpoint == 'listar_pendentes' %}active{% endif %}"><i class="fas fa-chart-line"></i> Relatório de Pendências</a></li>
+            </ul>
+            <div class="user-menu">
+                {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('perfil') }}" class="welcome-message"><i class="fas fa-user-circle"></i> Olá, {{ current_user.username }}</a>
+                    <a href="{{ url_for('logout') }}" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Sair</a>
+                {% endif %}
+            </div>
+        </nav>
+    </header>
+    <main class="container">
+        {% with messages = get_flashed_messages(with_categories=true) %}{% if messages %}<div class="flash-messages">{% for c, m in messages %}<div class="alert alert-{{c}}">{{m}}</div>{% endfor %}</div>{% endif %}{% endwith %}
+        
+        <div class="form-container">
+            <h1><i class="fas fa-edit"></i> Editar Contrato de Aluguer</h1>
+            <p style="text-align: center; margin-bottom: 2rem; color: var(--secondary-color);">Casa: <strong>{{ contrato.apelido_casa }}</strong> | Inquilino: <strong>{{ contrato.nome_inquilino }}</strong></p>
+            <form method="post">
+                <div class="form-group">
+                    <label for="valor_aluguel">Valor Mensal do Aluguer (R$)</label>
+                    <input type="number" id="valor_aluguel" name="valor_aluguel" value="{{ contrato.valor_aluguel }}" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="dia_vencimento">Dia do Vencimento (1-28)</label>
+                    <input type="number" id="dia_vencimento" name="dia_vencimento" value="{{ contrato.dia_vencimento }}" min="1" max="28" required>
+                </div>
+                <div class="form-group">
+                    <label for="data_inicio">Data de Início do Contrato</label>
+                    <input type="date" id="data_inicio" name="data_inicio" value="{{ contrato.data_inicio }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="data_fim">Data de Fim do Contrato (opcional)</label>
+                    <input type="date" id="data_fim" name="data_fim" value="{{ contrato.data_fim or '' }}">
+                </div>
+                <button type="submit" class="btn"><i class="fas fa-save"></i> Salvar Alterações</button>
+            </form>
+        </div>
+    </main>
+</body>
+</html>
